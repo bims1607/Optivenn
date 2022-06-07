@@ -1,4 +1,5 @@
 let myinp;
+let selectedFile;
 let wiringDiagram;
 let generalOutline;
 let panelOutline;
@@ -116,3 +117,35 @@ document.getElementById("submit").onclick = () => {
     panelOutline +
     ".pdf";
 };
+
+document.getElementById("input-fl").addEventListener("change", (event) => {
+  selectedFile = event.target.files[0];
+});
+
+document.getElementById("button-fl").addEventListener("click", (event) => {
+  if (selectedFile) {
+    let fileReader = new FileReader();
+    fileReader.readAsBinaryString(selectedFile);
+    fileReader.onload = (event) => {
+      let data = event.target.result;
+      let workbook = XLSX.read(data, { type: "binary" });
+      workbook.SheetNames.forEach((sheet) => {
+        let row0Object = XLSX.utils.sheet_to_row_object_array(
+          workbook.Sheets[sheet]
+        );
+        row0Object.forEach((el) => {
+          let salesOrder = el[1];
+          let manufItem = el[2];
+
+          const para = document.createElement("a");
+          const node = document.createTextNode(
+            salesOrder + "  @  " + manufItem
+          );
+          para.appendChild(node);
+          document.getElementById("row").appendChild(para);
+          para.classList.add("col-6");
+        });
+      });
+    };
+  }
+});
